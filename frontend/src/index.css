@@ -6,7 +6,8 @@
   .animate-fade-in {
     animation: fadeIn 0.3s ease-in-out;
   }
-  /* Custom class to hide scrollbar */
+  /* Custom class to hide scrollbar in the wesite
+   */
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
