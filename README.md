@@ -1,6 +1,6 @@
 # CollabSphere
 
-CollabSphere is a collaborative development platform designed to help developers connect, create projects, and work together efficiently. It integrates AI capabilities within a group chat environment to assist developers in their tasks.
+CollabSphere is a collaborative development platform designed to help developers connect, create projects, and work together efficiently. It integrates AI capabilities within a group chat environment to assist developers in their tasks and its a Mini bolt.new.
 
 ## Key Features
 
