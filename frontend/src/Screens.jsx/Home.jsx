@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { RiLinksFill, RiUserFill } from "@remixicon/react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../config/axios.config.js";
-import { userContext } from "../Context/usercontextProvider.jsx";
+import { userContext } from "../Context/UsercontextProvider.jsx";
 
 const Home = () => {
   const [modalOpen, setModalOpen] = useState(false);

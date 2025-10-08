@@ -10,7 +10,7 @@ import {
   FaPlus,
   FaPlay,
 } from "react-icons/fa";
-import { userContext } from "../Context/usercontextProvider.jsx";
+import { userContext } from "../Context/UsercontextProvider.jsx";
 import Markdown from "markdown-to-jsx";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
