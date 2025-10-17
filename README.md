@@ -2,6 +2,8 @@
 
 CollabSphere is a collaborative development platform designed to help developers connect, create projects, and work together efficiently. It integrates AI capabilities within a group chat environment to assist developers in their tasks and its a Mini bolt.new.
 
+
+*Live*:https://collabsphere-client.onrender.com
 ## Key Features
 
 - **User Authentication**: Allows users to register, log in, and log out securely.
