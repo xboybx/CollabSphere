@@ -1,11 +1,7 @@
 import React from "react";
 import Socket from "socket.io-client";
 
-<<<<<<< HEAD
 let socketiInstance;
-=======
-let socketiInstance = null;
->>>>>>> 6008d8b5cb79a54782c04c13138c2980ff9b795d
 //This file contains 3 functions
 //1. socketInstance
 //2. sendMessage

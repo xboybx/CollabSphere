@@ -5,7 +5,6 @@ export const userContext = createContext();
 
 const UsercontextProvider = ({ children }) => {
   const [user, setUser] = useState({});
-<<<<<<< HEAD
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
 
   useEffect(() => {
@@ -26,18 +25,6 @@ const UsercontextProvider = ({ children }) => {
 
   return (
     <userContext.Provider value={{ user, setUser, theme, setTheme }}>
-=======
-
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user) {
-      setUser(user);
-    }
-  }, []);
-
-  return (
-    <userContext.Provider value={{ user, setUser }}>
->>>>>>> 6008d8b5cb79a54782c04c13138c2980ff9b795d
       <>{children}</>
     </userContext.Provider>
   );
