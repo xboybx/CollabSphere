@@ -5,21 +5,20 @@ import {
   socketInstance,
   sendMessage,
   receiveMessage,
+  removeMessageListener,
 } from "../Context/SocketContext.jsx";
-import {
-  FaUsers,
-  FaTimes,
-  FaUserFriends,
-  FaPlus,
-  FaPlay,
-} from "react-icons/fa";
 import { userContext } from "../Context/UsercontextProvider.jsx";
-import Markdown from "markdown-to-jsx";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { DotLoader, RingLoader } from "react-spinners";
+import { RingLoader } from "react-spinners";
 import { getWebContainer } from "../../config/Webcontainer.js";
-import { Sun, Moon, Code2, Home } from "lucide-react";
+import Header from "../components/Header.jsx";
+import Chat from "../components/Chat.jsx";
+import FileTree from "../components/FileTree.jsx";
+import CodeEditor from "../components/Editor.jsx";
+import AddCollaboratorModal from "../components/AddCollaboratorModal.jsx";
+import CollaboratorsPanel from "../components/CollaboratorsPanel.jsx";
+import SidePanel from "../components/SidePanel";
+import { AnimatePresence } from "framer-motion";
+
 const NewCreatedProject = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -28,7 +27,6 @@ const NewCreatedProject = () => {
   const [iframeUrl, setIframeUrl] = useState(null);
   const [runProcess, setRunProcess] = useState(null);
 
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [leftPaneWidth, setLeftPaneWidth] = useState(50); // percentage
@@ -43,21 +41,60 @@ const NewCreatedProject = () => {
   const [isCodeEditorVisible, setIsCodeEditorVisible] = useState(true);
   const [geminiError, setGeminiError] = useState(null);
   const { user, theme, setTheme } = useContext(userContext);
+  const [isCollaboratorsDrawerOpen, setIsCollaboratorsDrawerOpen] =
+    useState(false);
 
-  //to Connect the socket before any messages
   useEffect(() => {
     if (projectId) {
       socketInstance(projectId);
+
+      const geminiErrorHandler = (error) => {
+        setGeminiError(error.message);
+        setIsLoading(false);
+      };
+
+      const aiResponseEndHandler = () => {
+        console.log("response received");
+        setIsLoading(false);
+      };
+
+      const messageHandler = (data) => {
+        let aiMessage = data.message;
+        if (data.sender._id === "ai") {
+          try {
+            const parsedMessage = JSON.parse(data.message);
+            if (parsedMessage?.fileTree) {
+              if (webContainer) {
+                webContainer.mount(parsedMessage.fileTree);
+              }
+              setFiles((prevFiles) => ({
+                ...prevFiles,
+                filetree: parsedMessage.fileTree,
+              }));
+            }
+            aiMessage = parsedMessage.text || data.message;
+          } catch (e) {
+            // Not a JSON message, use as is
+          }
+        }
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { text: aiMessage, sender: data.sender },
+        ]);
+      };
+
+      receiveMessage("gemini-error", geminiErrorHandler);
+      receiveMessage("ai-response-end", aiResponseEndHandler);
+      receiveMessage("project-message", messageHandler);
+
+      // Cleanup listeners on component unmount or projectId change
+      return () => {
+        removeMessageListener("gemini-error", geminiErrorHandler);
+        removeMessageListener("ai-response-end", aiResponseEndHandler);
+        removeMessageListener("project-message", messageHandler);
+      };
     }
-    receiveMessage("gemini-error", (error) => {
-      setGeminiError(error.message);
-      setIsLoading(false);
-    });
-    receiveMessage("ai-response-end", () => {
-      setIsLoading(false);
-      console.log("response recieved");
-    });
-  }, [projectId]);
+  }, [projectId, webContainer]);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -192,76 +229,26 @@ const NewCreatedProject = () => {
   useEffect(() => {
     if (!project) return;
 
-    console.log("Project ID:", project);
-
-    socketInstance(project._id);
-
     //Creating a webcontainer instance
     if (!webContainer) {
-      getWebContainer().then((instance) => {
+      getWebContainer().then(async (instance) => {
         setWebContainer(instance);
         console.log("WebContainer instance created");
+        if (project.filetree) {
+          await instance.mount(project.filetree);
+          setFiles({ filetree: project.filetree });
+        }
       });
     }
-
-    const messageHandler = (data) => {
-      console.log("messageHandler received data:", data);
-      if (data.sender._id == "ai") {
-        let msg;
-        try {
-          msg = JSON.parse(data.message);
-        } catch (e) {
-          msg = data.message;
-        }
-
-        //mounting the file tree to webcontainer
-        webContainer?.mount(msg.fileTree);
-
-        console.log("AI message received:", msg);
-        // Only show text part in chat messages
-        if (msg?.fileTree) {
-          setFiles((prevFiles) => ({
-            ...prevFiles,
-            filetree: msg.fileTree,
-          }));
-          // Replace data.message with only text for chat display
-          if (typeof msg === "object" && "text" in msg) {
-            data.message = msg.text;
-          } else {
-            data.message = msg;
-          }
-        } else if (typeof msg === "object" && "text" in msg) {
-          // For normal AI response with text property only
-          data.message = msg.text;
-        } else {
-          data.message = msg;
-        }
-      }
-
-      //setting all recieved messages of chat in the messages state
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          text: data.message?.text || data.message,
-          sender: data.sender,
-        },
-      ]);
-      setIsLoading(false); // Set loading false when AI message received
-    };
-
-    receiveMessage("project-message", messageHandler);
 
     document.addEventListener("mousemove", resize);
     document.addEventListener("mouseup", stopResizing);
 
     return () => {
-      if (typeof removeMessageListener === "function") {
-        removeMessageListener("project-message", messageHandler);
-      }
       document.removeEventListener("mousemove", resize);
       document.removeEventListener("mouseup", stopResizing);
     };
-  }, [projectId, resize, stopResizing]);
+  }, [project, webContainer, resize, stopResizing]);
 
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
@@ -289,520 +276,89 @@ const NewCreatedProject = () => {
         className="flex flex-col shadow-lg rounded-lg"
         style={{ width: `${leftPaneWidth}%` }}
       >
-        <div className="h-16 flex items-center px-6 justify-between rounded-t-md border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate("/")}
-              className="p-2 rounded-lg hover:bg-gray-700 transition-colors focus:outline-none"
-              title="Back to Home"
-            >
-              <Home size={20} />
-            </button>
-            <button
-              onClick={() => setIsDrawerOpen(true)}
-              className="p-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2 focus:outline-none"
-            >
-              <FaUsers size={20} />
-              <div className="text-sm font-medium font-sans">
-                {` ${user && user.email ? user.email.split("@")[0] : "User"}`}
-              </div>
-            </button>
-          </div>
-
-          <h2 className="text-xl font-bold font-sans bg-gradient-to-r from-primary to-accent-light bg-clip-text text-transparent">
-            {project?.name || "Project"}
-          </h2>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setIsCodeEditorVisible(!isCodeEditorVisible)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors focus:outline-none"
-              title={
-                isCodeEditorVisible ? "Hide Code Editor" : "Show Code Editor"
-              }
-            >
-              <Code2 size={18} />
-              <span className="text-sm">
-                {isCodeEditorVisible ? "Hide" : "Show"}
-              </span>
-            </button>
-            <button
-              onClick={() => {
-                setaAllusersModal(true);
-                getallUsers();
-              }}
-              className="p-2 rounded-lg hover:bg-gray-700 transition-colors focus:outline-none"
-              title="Add Collaborator"
-            >
-              <FaPlus size={18} />
-            </button>
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-gray-700 focus:outline-none transition-colors"
-              title="Toggle Theme"
-            >
-              {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-          </div>
-        </div>
-        {/* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Allusers modal to add xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */}
-        {allusersmodal && (
-          <div className="absolute top-[30%] right-[50%] bg-gray-800 p-6 rounded-md shadow-lg z-50 w-80 border border-gray-700">
-            <div className="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
-              <h3 className="text-lg font-semibold font-sans text-white">
-                All Users
-              </h3>
-              <button
-                onClick={() => setaAllusersModal(false)}
-                className="text-gray-400 hover:text-white transition-colors p-1 rounded-md hover:bg-gray-700"
-              >
-                <FaTimes size={20} />
-              </button>
-            </div>
-
-            <div className="max-h-60 overflow-y-auto">
-              {allusers
-                ?.filter(
-                  (user) =>
-                    !project?.users?.some(
-                      (projectUser) => projectUser._id === user._id
-                    )
-                )
-                ?.map((user) => (
-                  <div
-                    key={user._id}
-                    onClick={() => {
-                      adduserToProject(user._id);
-                    }}
-                    className="flex items-center gap-3 hover:bg-gray-700 p-2 rounded-md transition-colors cursor-pointer"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center">
-                      <FaUserFriends size={16} />
-                    </div>
-                    <span className="text-white">
-                      {user.email ? user.email.split("@")[0] : "Unknown User"}
-                    </span>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
-        {/* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Messages xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {geminiError && (
-            <div className="bg-red-500 text-white p-4 rounded-lg">
-              {geminiError}
-            </div>
-          )}
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex flex-col ${
-                msg.sender === user._id ? "items-end" : "items-start"
-              }`}
-            >
-              <div
-                className={` hide-scrollbar relative max-w-[70%] px-5 py-3 break-words whitespace-pre-wrap rounded-lg ${
-                  msg.sender === user._id
-                    ? "bg-blue-600 text-white rounded-tr-none"
-                    : msg.sender === "ai" || msg.sender?._id === "ai"
-                    ? "bg-gray-700 rounded-tl-none overflow-scroll"
-                    : "bg-gray-700 rounded-tl-none"
-                }`}
-              >
-                <div>
-                  <span className="text-xs text-gray-400 mb-1">
-                    {msg.sender === user._id
-                      ? user.email || "You"
-                      : typeof msg.sender === "object"
-                      ? msg.sender?.email || "Unknown User"
-                      : project?.users?.find((u) => u._id === msg.sender)
-                          ?.email || "Unknown User"}
-                  </span>
-                </div>
-                {msg.sender === "ai" || msg.sender?._id === "ai" ? (
-                  typeof msg.text === "string" ? (
-                    currentfile.endsWith(".html") ? (
-                      <SyntaxHighlighter language="html" style={vscDarkPlus}>
-                        {msg.text}
-                      </SyntaxHighlighter>
-                    ) : (
-                      <Markdown
-                        options={{
-                          overrides: {
-                            a: {
-                              props: {
-                                rel: "noopener noreferrer",
-                                target: "_blank",
-                              },
-                            },
-                            link: {
-                              props: {
-                                rel: "stylesheet",
-                              },
-                            },
-                          },
-                        }}
-                      >
-                        {msg.text}
-                      </Markdown>
-                    )
-                  ) : (
-                    <p>Unable to display message content</p>
-                  )
-                ) : (
-                  msg.text
-                )}
-                <div
-                  className={`absolute top-0 ${
-                    msg.sender === user._id
-                      ? "right-0 border-l-[10px] border-l-transparent border-t-[10px] border-t-blue-600"
-                      : msg.sender === "ai"
-                      ? "left-0 border-r-[10px] border-r-transparent border-t-[10px] border-t-gray-700"
-                      : "left-0 border-r-[10px] border-r-transparent border-t-[10px] border-t-gray-700"
-                  }`}
-                />
-              </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex flex-col items-start">
-              <RingLoader
-                color={theme === "dark" ? "white" : "black"}
-                size={20}
-              />
-            </div>
-          )}
-        </div>
-
-        <form
-          onSubmit={handleSendMessage}
-          className="p-6 border-t border-gray-700"
-        >
-          <div className="flex gap-3">
-            <input
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Type a message..."
-              className="flex-1 px-5 py-3 rounded-full border-2 bg-transparent border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              type="submit"
-              className="bg-blue-600 text-white rounded-lg px-6 py-3 hover:bg-blue-700 transition-colors"
-            >
-              Send
-            </button>
-          </div>
-        </form>
-      </div>
-      {/* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ResizeBar column xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */}
-      {isCodeEditorVisible && (
-        <div
-          className="w-1 bg-gray-700 hover:bg-gray-600 cursor-col-resize active:bg-primary transition-colors"
-          onMouseDown={startResizing}
+        <Header
+          user={user}
+          project={project}
+          isCodeEditorVisible={isCodeEditorVisible}
+          setIsCodeEditorVisible={setIsCodeEditorVisible}
+          setaAllusersModal={setaAllusersModal}
+          getallUsers={getallUsers}
+          toggleTheme={toggleTheme}
+          theme={theme}
+          setIsCollaboratorsDrawerOpen={setIsCollaboratorsDrawerOpen}
         />
-      )}
 
-      {/* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  Project rightside code xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */}
-      {/* ..................................vertical FileTree Render............................................. */}
+        <AnimatePresence>
+          {allusersmodal && (
+            <AddCollaboratorModal
+              allusers={allusers}
+              project={project}
+              adduserToProject={adduserToProject}
+              removeuserFromProject={removeuserFromProject}
+              setaAllusersModal={setaAllusersModal}
+            />
+          )}
+        </AnimatePresence>
+
+        <Chat
+          messages={messages}
+          user={user}
+          geminiError={geminiError}
+          message={message}
+          setMessage={setMessage}
+          handleSendMessage={handleSendMessage}
+          isLoading={isLoading}
+          theme={theme}
+        />
+      </div>
+      <div
+        onMouseDown={startResizing}
+        className="w-2 cursor-col-resize bg-gray-700 hover:bg-primary transition-colors"
+      />
       {isCodeEditorVisible && (
         <div
-          className="flex px-1 overflow-auto"
+          className="flex flex-col"
           style={{ width: `${100 - leftPaneWidth}%` }}
         >
-          <div className="treeleft w-[210px] h-full py-8 border-r-2 border-gray-700 overflow-y-auto">
-            {Object.keys(files.filetree)?.map((file, index) => (
-              <div
-                key={index}
-                className={`flex items-center px-2 py-1 mb-1 rounded text-sm cursor-pointer ${
-                  currentfile === file
-                    ? "bg-blue-600 text-white"
-                    : "hover:bg-gray-700 text-xs"
-                }`}
-                onClick={() => setCurrentfile(file)}
-              >
-                <span className="w-4 mr-2">
-                  {file.endsWith(".js") ? (
-                    <svg
-                      className="w-4 h-4 text-blue-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  ) : file.endsWith(".json") ? (
-                    <svg
-                      className="w-4 h-4 text-yellow-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"
-                      />
-                    </svg>
-                  ) : (
-                    <svg
-                      className="w-4 h-4 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                  )}
-                </span>
-                <span className="truncate">{file}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* ...........................horizontal FileTree Render on top and total right sides righ ride the file viewer and code editor..............................................  */}
-          <div className="treeleft w-full h-full">
-            <div className="justify-between topfiles w-full px-4 py-1 h-10 flex items-center border-b border-gray-700 overflow-x-auto">
-              <div className="flex">
-                {Object.keys(files.filetree).map((file, indx) => (
-                  <div
-                    key={indx}
-                    className={`flex items-center px-3 py-1 mx-1 rounded-t-lg cursor-pointer text-sm ${
-                      currentfile === file
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600"
-                    }`}
-                    onClick={() => setCurrentfile(file)}
-                  >
-                    <span className="w-4 mr-1">
-                      {file.endsWith(".js") ? (
-                        <svg
-                          className="w-3 h-3 text-blue-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                      ) : file.endsWith(".json") ? (
-                        <svg
-                          className="w-3 h-3 text-yellow-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"
-                          />
-                        </svg>
-                      ) : (
-                        <svg
-                          className="w-3 h-3 text-gray-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                          />
-                        </svg>
-                      )}
-                    </span>
-                    <span className="truncate">{file}</span>
-                  </div>
-                ))}
-              </div>
-              {files && (
-                <button
-                  onClick={async () => {
-                    await webContainer?.mount(files.filetree);
-
-                    // First check if node_modules exists
-                    const hasNodeModules = await webContainer.fs
-                      .readdir("/")
-                      .then(
-                        (files) => files.includes("node_modules"),
-                        () => false
-                      );
-
-                    // Run npm install if node_modules doesn't exist
-                    if (!hasNodeModules) {
-                      const installProcess = await webContainer.spawn("npm", [
-                        "install",
-                      ]);
-                      installProcess.output.pipeTo(
-                        new WritableStream({
-                          write(chunk) {
-                            console.log(chunk);
-                          },
-                        })
-                      );
-                      await installProcess.exit;
-                    }
-
-                    if (runProcess) {
-                      runProcess.kill();
-                    }
-
-                    let tempRunProcess = await webContainer.spawn("npm", [
-                      "start",
-                    ]);
-
-                    tempRunProcess.output.pipeTo(
-                      new WritableStream({
-                        write(chunk) {
-                          console.log(chunk);
-                        },
-                      })
-                    );
-
-                    setRunProcess(tempRunProcess);
-
-                    webContainer.on("server-ready", (port, url) => {
-                      console.log(port, url);
-                      setIframeUrl(url);
-                    });
-                  }}
-                >
-                  <FaPlay />
-                </button>
-              )}
-            </div>
-            {/* .................................CurrentFile in the code edtior.............................................. */}
-            {currentfile && (
-              <div className="p-4 rounded-lg h-full overflow-y-scroll">
-                <div className="overflow-auto h-full font-mono text-sm p-2 rounded">
-                  <SyntaxHighlighter
-                    language={
-                      currentfile.endsWith(".js")
-                        ? "javascript"
-                        : currentfile.endsWith(".json")
-                        ? "json"
-                        : "text"
-                    }
-                    style={vscDarkPlus}
-                    customStyle={{
-                      backgroundColor: "transparent",
-                      padding: 0,
-                      margin: 0,
-                      overflow: "auto",
-                      height: "100%",
-                    }}
-                    wrapLines={true}
-                    showLineNumbers={true}
-                    lineNumberStyle={{ color: "#6e7681", marginRight: "1em" }}
-                    lineProps={{ style: { whiteSpace: "pre-wrap" } }}
-                    contentEditable={true}
-                    suppressContentEditableWarning={true}
-                    onBlur={(e) => {
-                      let updatedFiles = {
-                        ...files.filetree,
-                        [currentfile]: {
-                          file: {
-                            contents: e.target.textContent,
-                          },
-                        },
-                      };
-                      // console.log("updatedFiles", updatedFiles);
-
-                      setFiles((prev) => ({ ...prev, filetree: updatedFiles }));
-
-                      updateFiletree(updatedFiles);
-                    }}
-                  >
-                    {files.filetree[currentfile]?.file?.contents || ""}
-                  </SyntaxHighlighter>
+          <SidePanel
+            files={files}
+            currentfile={currentfile}
+            setCurrentfile={setCurrentfile}
+            webContainer={webContainer}
+            runProcess={runProcess}
+            setRunProcess={setRunProcess}
+            setIframeUrl={setIframeUrl}
+            updateFiletree={updateFiletree}
+            theme={theme}
+          />
+          {/* //the Browser output of the web container  */}
+          {iframeUrl && (
+            <div className="h-1/2 border-t border-gray-700 flex flex-col">
+              <div className="bg-gray-800 flex items-center p-2">
+                <div className="flex space-x-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                </div>
+                <div className="flex-1 ml-4 bg-gray-700 rounded-md px-2 py-1 text-sm text-gray-300">
+                  {iframeUrl}
                 </div>
               </div>
-            )}
-          </div>
-          {iframeUrl && webContainer && (
-            <div className="flex min-w-96 flex-col h-screen">
-              <div>
-                <div className="address-bar p-2">
-                  <input
-                    type="text"
-                    onChange={(e) => setIframeUrl(e.target.value)}
-                    value={iframeUrl}
-                    className="w-full h-8 p-2 px-4 bg-light-background dark:bg-dark-background rounded-full border border-gray-300 dark:border-gray-600 text-sm"
-                  />
-                </div>
-              </div>
-              <iframe src={iframeUrl} className="w-full h-full"></iframe>
+              <iframe
+                src={iframeUrl}
+                className="w-full h-full bg-white"
+                title="Preview"
+              ></iframe>
             </div>
           )}
         </div>
       )}
-
-      {/* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Users Drawer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */}
-      <div
-        className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 transform transition-transform duration-300 ease-in-out ${
-          isDrawerOpen ? "translate-x-0" : "-translate-x-full"
-        } rounded-r-md shadow-lg border-r border-gray-200 dark:border-gray-700`}
-      >
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
-            <h3 className="text-lg font-semibold font-sans text-gray-900 dark:text-white">
-              Collaborators
-            </h3>
-            <button
-              onClick={() => setIsDrawerOpen(false)}
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white transition-colors p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <FaTimes size={20} />
-            </button>
-          </div>
-          {project?.users?.map((user, index) => (
-            <div key={index} className="space-y-3">
-              <div className="flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-gray-700 p-3 rounded-md transition-colors cursor-pointer">
-                <FaUserFriends size={25} />
-                <div className="flex items-center justify-between w-full p-2">
-                  <span className="truncate text-gray-900 dark:text-white">
-                    {user.email ? user.email.split("@")[0] : "Unknown User"}
-                  </span>
-
-                  <button
-                    onClick={() => {
-                      removeuserFromProject(user._id);
-                    }}
-                    className="text-red-500 hover:text-red-700 p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900"
-                  >
-                    {user._id !== project.users[0]._id ? <FaTimes /> : null}
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <CollaboratorsPanel
+        isOpen={isCollaboratorsDrawerOpen}
+        onClose={() => setIsCollaboratorsDrawerOpen(false)}
+        collaborators={project?.users}
+        onRemoveCollaborator={removeuserFromProject}
+      />
     </div>
   );
 };

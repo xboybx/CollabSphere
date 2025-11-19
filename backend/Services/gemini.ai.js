@@ -91,60 +91,65 @@ const systemInstruction = `You are an expert in MERN and Development. You have a
     
     `;
 
-export const callGeminiAPI = async (prompt) => {
+export const callGeminiAPI = async (prompt, retries = 3, delay = 2000) => {
     const apiKey = process.env.GOOGLE_AI_KEY;
 
     if (!apiKey) {
         throw new Error('GOOGLE_AI_KEY is not configured');
     }
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30-second timeout
+    for (let i = 0; i < retries; i++) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30-second timeout
 
-    try {
-        console.log("Calling Gemini API...");
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                signal: controller.signal, // Pass the abort signal to fetch
-                body: JSON.stringify({
-                    system_instruction: {
-                        parts: [{ text: systemInstruction }]
-                    },
-                    contents: [{
-                        parts: [{ text: prompt }]
-                    }],
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        temperature: 0.4,
-                    }
-                }),
+        try {
+            console.log(`Calling Gemini API... Attempt ${i + 1}`);
+            const response = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    signal: controller.signal,
+                    body: JSON.stringify({
+                        system_instruction: {
+                            parts: [{ text: systemInstruction }]
+                        },
+                        contents: [{
+                            parts: [{ text: prompt }]
+                        }],
+                        generationConfig: {
+                            responseMimeType: "application/json",
+                            temperature: 0.4,
+                        }
+                    }),
+                }
+            );
+
+            clearTimeout(timeoutId);
+
+            const data = await response.json();
+            console.log("Gemini API Response:", data);
+
+            if (!response.ok) {
+                console.error("Gemini API Error:", data);
+                if (data.error?.message.includes('models/gemini-pro is not found for API version v1beta')) {
+                    throw new Error('GEMINI_MODEL_NOT_FOUND');
+                }
+                throw new Error(data.error?.message || 'Gemini API error');
             }
-        );
 
-        clearTimeout(timeoutId); // Clear the timeout if the request completes in time
-
-        const data = await response.json();
-        console.log("Gemini API Response:", data);
-
-        if (!response.ok) {
-            console.error("Gemini API Error:", data);
-            if (data.error?.message.includes('models/gemini-pro is not found for API version v1beta')) {
-                throw new Error('GEMINI_MODEL_NOT_FOUND');
+            console.log("Successfully received response from Gemini API.");
+            return data.candidates[0].content.parts[0].text;
+        } catch (error) {
+            clearTimeout(timeoutId);
+            if (error.name === 'AbortError') {
+                console.error(`Gemini API call timed out on attempt ${i + 1}.`);
+                if (i === retries - 1) throw new Error('Gemini API call timed out after multiple retries.');
+            } else {
+                console.error(`Error in callGeminiAPI on attempt ${i + 1}:`, error);
+                if (i === retries - 1) throw error;
             }
-            throw new Error(data.error?.message || 'Gemini API error');
+            await new Promise(res => setTimeout(res, delay));
         }
-
-        console.log("Successfully received response from Gemini API.");
-        return data.candidates[0].content.parts[0].text;
-    } catch (error) {
-        if (error.name === 'AbortError') {
-            console.error("Gemini API call timed out.");
-            throw new Error('Gemini API call timed out');
-        }
-        console.error("Error in callGeminiAPI:", error);
-        throw error;
     }
 };

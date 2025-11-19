@@ -77,7 +77,7 @@ io.on('connection', async Socket => {
                 console.log(`Extracted prompt: "${prompt}"`);
 
                 const response = await callGeminiAPI(prompt);
-                console.log("Received response from Gemini API.", response);
+                // console.log("Received response from Gemini API.", response);
 
                 // If response is a string, try to parse JSON
                 // let parsedResponse = response;

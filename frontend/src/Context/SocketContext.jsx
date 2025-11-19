@@ -29,3 +29,7 @@ export const sendMessage = (event, data) => {
 export const receiveMessage = (event, data) => {
   socketiInstance.on(event, data);
 };
+
+export const removeMessageListener = (event, handler) => {
+  socketiInstance.off(event, handler);
+};
