@@ -5,7 +5,7 @@ CollabSphere is a collaborative development platform designed to help developers
 
 [Click to view the project](https://collabsphere-client.onrender.com)
 ## Key Features
-of the App`
+
 - **User Authentication**: Allows users to register, log in, and log out securely.
 - **Project Management**: Users can create and manage their projects within the platform.
 - **Real-time Group Chat**: Facilitates real-time communication among developers working on the same project.
