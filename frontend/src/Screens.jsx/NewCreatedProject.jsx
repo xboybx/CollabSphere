@@ -20,7 +20,6 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { DotLoader, RingLoader } from "react-spinners";
 import { getWebContainer } from "../../config/Webcontainer.js";
 import { Sun, Moon, Code2, Home } from "lucide-react";
-
 const NewCreatedProject = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -68,6 +67,7 @@ const NewCreatedProject = () => {
         message: message,
         sender: user._id,
       });
+      // console.log("message from ai through sockrt to frontend", message);
       setMessages((prevMessages) => [
         ...prevMessages,
         { text: message, sender: user._id },
@@ -76,7 +76,7 @@ const NewCreatedProject = () => {
       // Only set loading when message is for AI
       if (message.includes("@ai")) {
         setIsLoading(true);
-        // setGeminiError(null);
+        setGeminiError(false);
       }
     }
   };
