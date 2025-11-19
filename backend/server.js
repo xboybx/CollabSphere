@@ -7,11 +7,9 @@ import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import UserModel from './models/userModel.js';
 import ProjectModel from './models/projects.model.js';
-import { Socket } from 'dgram';
-import { log } from 'console';
 import { callGeminiAPI } from './Services/gemini.ai.js';
 
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 
 const server = http.createServer(app);
 
@@ -126,6 +124,6 @@ io.on('connection', async Socket => {
 });
 
 
-server.listen(port, "0.0.0.0", () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
 });
