@@ -21,7 +21,5 @@ app.use("/users", UserRoutes);
 app.use("/projects", ProjectRoutes);
 app.use("/ai", aiRoutes);
 
+
 export default app;
-
-
-
