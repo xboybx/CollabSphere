@@ -44,13 +44,21 @@ export const userLoginController = async (req, res) => {
         // Explicitly include the password field in the query
         const user = await userModel.findOne({ email }).select('+password');
         if (!user) {
+<<<<<<< HEAD
             return res.status(404).json({ message: "User not found" });
+=======
+            return res.status(400).json({ error: "Invalid Email" });
+>>>>>>> 6008d8b5cb79a54782c04c13138c2980ff9b795d
         }
 
         const isMatch = await user.ComparePassword(password);
 
         if (!isMatch) {
+<<<<<<< HEAD
             return res.status(400).json({ message: "Invalid Password" });
+=======
+            return res.status(400).json({ error: "Invalid Password" });
+>>>>>>> 6008d8b5cb79a54782c04c13138c2980ff9b795d
         }
 
         const token = user.generateToken();
@@ -133,4 +141,12 @@ export const getUserController = async (req, res) => {
         console.error("Error fetching user:", error);
         return res.status(500).json({ message: error.message });
     }
+<<<<<<< HEAD
 }
+=======
+}
+
+
+
+
+>>>>>>> 6008d8b5cb79a54782c04c13138c2980ff9b795d

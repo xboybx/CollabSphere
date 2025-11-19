@@ -14,9 +14,13 @@
     "@remixicon/react": "^4.6.0",
     "@webcontainer/api": "^1.6.1",
     "axios": "^1.8.4",
+<<<<<<< HEAD
     "framer-motion": "^12.23.24",
     "highlight.js": "^11.11.1",
     "lucide-react": "^0.554.0",
+=======
+    "highlight.js": "^11.11.1",
+>>>>>>> 6008d8b5cb79a54782c04c13138c2980ff9b795d
     "markdown-to-jsx": "^7.7.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -38,6 +42,10 @@
     "globals": "^15.15.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
+<<<<<<< HEAD
     "vite": "^6.4.1"
+=======
+    "vite": "^6.2.0"
+>>>>>>> 6008d8b5cb79a54782c04c13138c2980ff9b795d
   }
 }

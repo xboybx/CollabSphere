@@ -16,7 +16,11 @@
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+<<<<<<< HEAD
     "dotenv": "^16.6.1",
+=======
+    "dotenv": "^16.5.0",
+>>>>>>> 6008d8b5cb79a54782c04c13138c2980ff9b795d
     "express": "^4.21.2",
     "express-validator": "^7.2.1",
     "ioredis": "^5.6.0",

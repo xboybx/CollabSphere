@@ -1,6 +1,9 @@
+<<<<<<< HEAD
 import dotenv from 'dotenv';
 dotenv.config();
 
+=======
+>>>>>>> 6008d8b5cb79a54782c04c13138c2980ff9b795d
 import http from 'http';
 import app from './app.js';
 import { Server } from 'socket.io';
@@ -9,7 +12,11 @@ import UserModel from './models/userModel.js';
 import ProjectModel from './models/projects.model.js';
 import { Socket } from 'dgram';
 import { log } from 'console';
+<<<<<<< HEAD
 import { callGeminiAPI } from './Services/gemini.ai.js';
+=======
+import { generateResult } from './Services/gemini.ai.js';
+>>>>>>> 6008d8b5cb79a54782c04c13138c2980ff9b795d
 
 const port = process.env.PORT || 3000;
 
@@ -73,6 +80,7 @@ io.on('connection', async Socket => {
         console.log("message from clientside recived to braodcat to all users in the room", data);
 
         const aipresent = data.message.includes("@ai");//check if the message contains "ai"
+<<<<<<< HEAD
         try {
             if (aipresent) {
                 const prompt = data.message.replace("@ai" || "@AI", "");//remove the "@ai" from the message
@@ -106,6 +114,36 @@ io.on('connection', async Socket => {
         }
 
 
+=======
+
+        if (aipresent) {
+            const prompt = data.message.replace("@ai" || "@AI", "");//remove the "@ai" from the message
+            const response = await generateResult(prompt)
+
+            // If response is a string, try to parse JSON
+            // let parsedResponse = response;
+            // if (typeof response === "string") {
+            //     try {
+            //         parsedResponse = JSON.parse(response);
+            //     } catch (err) {
+            //         console.log("Response is not JSON, sending as text");
+            //         parsedResponse = { text: response };
+            //     }
+            // }
+
+            io.to(Socket.roomId).emit("project-message", {
+                message: response,
+                sender: {
+                    _id: "ai",
+                    email: "AI"
+                }
+
+            })
+            // console.log("message from AI", parsedResponse);
+            return;
+        }
+
+>>>>>>> 6008d8b5cb79a54782c04c13138c2980ff9b795d
         Socket.broadcast.to(Socket.roomId).emit("project-message", data);//emits the clent msg to all the users in room ot project
 
 

@@ -1,4 +1,5 @@
 // filepath: c:\Users\jeswa\Desktop\AI-Chat\frontend\tailwind.config.js
+<<<<<<< HEAD
 export default {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
@@ -29,3 +30,16 @@ export default {
   },
   plugins: [],
 };
+=======
+module.exports = {
+  content: [
+    "./src/**/*.{js,jsx,ts,tsx}", // Include all your React files
+  ],
+  darkMode: "class", // Enable class-based dark mode
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+
+>>>>>>> 6008d8b5cb79a54782c04c13138c2980ff9b795d
