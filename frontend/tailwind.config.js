@@ -29,14 +29,3 @@ export default {
   },
   plugins: [],
 };
-module.exports = {
-  content: [
-    "./src/**/*.{js,jsx,ts,tsx}", // Include all your React files
-  ],
-  darkMode: "class", // Enable class-based dark mode
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-};
-
