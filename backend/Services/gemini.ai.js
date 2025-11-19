@@ -98,34 +98,53 @@ export const callGeminiAPI = async (prompt) => {
         throw new Error('GOOGLE_AI_KEY is not configured');
     }
 
-    const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-        {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                system_instruction: {
-                    parts: [{ text: systemInstruction }]
-                },
-                contents: [{
-                    parts: [{ text: prompt }]
-                }],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    temperature: 0.4,
-                }
-            }),
-        }
-    );
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30-second timeout
 
-    const data = await response.json();
+    try {
+        console.log("Calling Gemini API...");
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                signal: controller.signal, // Pass the abort signal to fetch
+                body: JSON.stringify({
+                    system_instruction: {
+                        parts: [{ text: systemInstruction }]
+                    },
+                    contents: [{
+                        parts: [{ text: prompt }]
+                    }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        temperature: 0.4,
+                    }
+                }),
+            }
+        );
 
-    if (!response.ok) {
-        if (data.error?.message.includes('models/gemini-pro is not found for API version v1beta')) {
-            throw new Error('GEMINI_MODEL_NOT_FOUND');
+        clearTimeout(timeoutId); // Clear the timeout if the request completes in time
+
+        const data = await response.json();
+        console.log("Gemini API Response:", data);
+
+        if (!response.ok) {
+            console.error("Gemini API Error:", data);
+            if (data.error?.message.includes('models/gemini-pro is not found for API version v1beta')) {
+                throw new Error('GEMINI_MODEL_NOT_FOUND');
+            }
+            throw new Error(data.error?.message || 'Gemini API error');
         }
-        throw new Error(data.error?.message || 'Gemini API error');
+
+        console.log("Successfully received response from Gemini API.");
+        return data.candidates[0].content.parts[0].text;
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            console.error("Gemini API call timed out.");
+            throw new Error('Gemini API call timed out');
+        }
+        console.error("Error in callGeminiAPI:", error);
+        throw error;
     }
-
-    return data.candidates[0].content.parts[0].text;
 };

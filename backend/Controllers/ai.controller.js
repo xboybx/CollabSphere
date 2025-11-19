@@ -5,7 +5,7 @@ export const getairesultContoller = async (req, res) => {
 
     try {
 
-        const result = await aiService.generateResult(prompt);
+        const result = await aiService.callGeminiAPI(prompt);
         res.status(200).json(result);
 
     } catch (error) {

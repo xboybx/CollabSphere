@@ -75,8 +75,12 @@ io.on('connection', async Socket => {
         const aipresent = data.message.includes("@ai");//check if the message contains "ai"
         try {
             if (aipresent) {
-                const prompt = data.message.replace("@ai" || "@AI", "");//remove the "@ai" from the message
-                const response = await callGeminiAPI(prompt)
+                console.log("AI mention detected. Processing...");
+                const prompt = data.message.replace(/@ai/i, "").trim();//remove the "@ai" from the message
+                console.log(`Extracted prompt: "${prompt}"`);
+
+                const response = await callGeminiAPI(prompt);
+                console.log("Received response from Gemini API.", response);
 
                 // If response is a string, try to parse JSON
                 // let parsedResponse = response;
@@ -96,7 +100,9 @@ io.on('connection', async Socket => {
                         email: "AI"
                     }
 
-                })
+                });
+                io.to(Socket.roomId).emit("ai-response-end");
+                console.log("Sent AI response to the client.");
                 return;
             }
         } catch (error) {
@@ -120,6 +126,6 @@ io.on('connection', async Socket => {
 });
 
 
-server.listen(port, () => {
+server.listen(port, "0.0.0.0", () => {
     console.log(`Server is running on http://localhost:${port}`);
 });

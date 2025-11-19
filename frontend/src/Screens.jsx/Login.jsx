@@ -20,7 +20,7 @@ const Login = () => {
     try {
       const { data } = await axios.post("/user/login", { email, password });
       setUser(data);
-      navigate("/");
+      navigate("/home");
     } catch (err) {
       if (err.response) {
         if (err.response.status === 404) {

@@ -42,7 +42,7 @@ const Register = () => {
       setUser(response.data.user);
       localStorage.setItem("user", JSON.stringify(response.data.user));
       localStorage.setItem("token", response.data.token);
-      navigate("/");
+      navigate("/home");
     } catch (error) {
       console.error("Registration failed:", error);
       if (error.response && error.response.data) {

@@ -54,6 +54,10 @@ const NewCreatedProject = () => {
       setGeminiError(error.message);
       setIsLoading(false);
     });
+    receiveMessage("ai-response-end", () => {
+      setIsLoading(false);
+      console.log("response recieved");
+    });
   }, [projectId]);
 
   const handleSendMessage = (e) => {
@@ -72,7 +76,7 @@ const NewCreatedProject = () => {
       // Only set loading when message is for AI
       if (message.includes("@ai")) {
         setIsLoading(true);
-        setGeminiError(null);
+        // setGeminiError(null);
       }
     }
   };
@@ -201,6 +205,7 @@ const NewCreatedProject = () => {
     }
 
     const messageHandler = (data) => {
+      console.log("messageHandler received data:", data);
       if (data.sender._id == "ai") {
         let msg;
         try {
