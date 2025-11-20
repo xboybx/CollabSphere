@@ -1,115 +1,76 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import plusIcon from "../../public/plus.svg";
 import "./Landing.css";
 
 const Landing = () => {
   return (
-    <div
-      className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white text-center font-sans animated-background p-4"
-      style={{
-        backgroundImage: `url(${plusIcon})`,
-        backgroundRepeat: "repeat",
-        backgroundSize: "40px 40px",
-      }}
-    >
-      <div className="max-w-4xl p-8">
-        <motion.h1
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-6xl font-bold mb-4 leading-tight"
-        >
-          Welcome to CollabSphere
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="text-2xl mb-8 text-green-400"
-        >
-          Your Collaborative Development Platform, Supercharged with AI.
-        </motion.p>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.6 }}
-          className="text-lg mb-10 text-gray-300 max-w-3xl mx-auto"
-        >
+    <div className="landing-container">
+      <nav className="navbar">
+        <div className="logo">
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 40 40"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle cx="20" cy="20" r="20" fill="#00B382" />
+            <path
+              d="M26.6,13.4C24.1,10.9,20.9,10,17.5,10c-4.4,0-8.1,2.5-10,6.1l2.9,1.2c1.5-2.5,4.1-4.2,7.1-4.2c2.4,0,4.6,1.1,6.1,2.9L26.6,13.4z"
+              fill="white"
+            />
+            <path
+              d="M13.4,26.6c2.5,2.5,5.7,3.4,9.1,3.4c4.4,0,8.1-2.5,10-6.1l-2.9-1.2c-1.5,2.5-4.1,4.2-7.1,4.2c-2.4,0-4.6-1.1-6.1-2.9L13.4,26.6z"
+              fill="white"
+            />
+          </svg>
+          <span
+            style={{
+              marginLeft: "10px",
+              fontSize: "1.5rem",
+              fontWeight: "bold",
+            }}
+          >
+            CollabSphere
+          </span>
+        </div>
+        <div className="nav-links">
+          <Link to="/login" className="nav-link">
+            Log in
+          </Link>
+          <Link to="/register" className="nav-link get-started-btn">
+            Get started
+          </Link>
+        </div>
+      </nav>
+      <main className="hero-section  mb-56">
+        <h1 className="hero-title">CollabSphere</h1>
+        <h2 className="hero-subtitle">
+          Your Collaborative Development Platform, Supercharged with AI
+        </h2>
+        <p className="hero-description">
           CollabSphere helps developers connect, create projects, and work
-          together seamlessly. With an integrated AI assistant in a group chat
+          together seamlessly, With an integrated AI assistant in a group chat
           environment, you can streamline your workflow and bring your ideas to
           life faster than ever. It's like having a mini IDE in the cloud.
-        </motion.p>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.9 }}
-          className="flex justify-center gap-4 mb-16"
-        >
-          <Link
-            to="/login"
-            className="px-8 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-lg hover:bg-green-600 transition-transform transform hover:scale-105"
+        </p>
+        <div className="support-note">
+          <span>Only supported on </span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            Get Started
-          </Link>
-          <Link
-            to="/register"
-            className="px-8 py-3 bg-transparent text-white font-semibold border-2 border-white rounded-lg hover:bg-white hover:text-gray-900 transition-colors"
-          >
-            Sign Up
-          </Link>
-        </motion.div>
-      </div>
-
-      <div className="w-full max-w-5xl mx-auto">
-        <h2 className="text-4xl font-bold mb-8">How It Works</h2>
-        <div className="grid md:grid-cols-3 gap-8 text-left">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.2 }}
-            className="bg-gray-800 p-6 rounded-lg"
-          >
-            <h3 className="text-2xl font-bold mb-2 text-green-400">
-              1. Create & Manage Projects
-            </h3>
-            <p className="text-gray-300">
-              Start by creating a new project. Manage your projects and
-              collaborators all in one place.
-            </p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.4 }}
-            className="bg-gray-800 p-6 rounded-lg"
-          >
-            <h3 className="text-2xl font-bold mb-2 text-green-400">
-              2. Real-time Collaboration
-            </h3>
-            <p className="text-gray-300">
-              Work with your team in a real-time group chat. Share ideas,
-              discuss code, and stay in sync.
-            </p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.6 }}
-            className="bg-gray-800 p-6 rounded-lg"
-          >
-            <h3 className="text-2xl font-bold mb-2 text-green-400">
-              3. AI-Powered Assistance
-            </h3>
-            <p className="text-gray-300">
-              Leverage the power of AI directly in your chat. Get help with
-              code, debug issues, and generate new ideas.
-            </p>
-          </motion.div>
+            <path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0L22 20H2l-2-4m16 0H4"></path>
+          </svg>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
