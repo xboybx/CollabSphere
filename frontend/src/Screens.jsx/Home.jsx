@@ -3,7 +3,7 @@ import { RiLinksFill, RiUserFill } from "@remixicon/react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../config/axios.config.js";
 import { userContext } from "../Context/UsercontextProvider.jsx";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, LogOut } from "lucide-react";
 
 const Home = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -62,17 +62,17 @@ const Home = () => {
       }`}
     >
       <header className="backdrop-blur-sm bg-white/70 dark:bg-gray-800/70 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold font-sans bg-gradient-to-r from-primary to-accent-light bg-clip-text text-transparent">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold font-sans text-black dark:text-white">
             CollabSphere
           </h1>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <RiUserFill
                 size={18}
                 className="text-gray-600 dark:text-gray-300"
               />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+              <span className="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-200">
                 {user && user.email ? user.email.split("@")[0] : "User"}
               </span>
             </div>
@@ -84,18 +84,18 @@ const Home = () => {
             </button>
             <button
               onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200"
+              className=" text-black dark:text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-all duration-200 "
             >
-              Logout
+              <LogOut />
             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-8">
-        <div className="flex justify-between items-center mb-8">
+      <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
-            <h2 className="text-4xl font-bold font-sans text-gray-900 dark:text-white mb-2">
+            <h2 className="text-2xl sm:text-4xl font-bold font-funnel text-black dark:text-white light:text-white mb-2">
               Your Projects
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
@@ -104,7 +104,7 @@ const Home = () => {
           </div>
           <button
             onClick={() => setModalOpen(true)}
-            className="flex items-center gap-2 bg-primary hover:bg-accent-light text-white font-medium py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+            className="mt-4 sm:mt-0 w-full sm:w-auto flex items-center justify-center gap-2 bg-black dark:bg-transparent text-white dark:text-white border border-black dark:border-white font-medium py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
           >
             <svg
               className="w-5 h-5"
@@ -148,23 +148,23 @@ const Home = () => {
             </p>
             <button
               onClick={() => setModalOpen(true)}
-              className="bg-primary hover:bg-accent-light text-white font-medium py-2 px-6 rounded-lg shadow-md transition-all duration-200"
+              className="bg-black dark:bg-transparent text-white dark:text-white border border-black dark:border-white font-medium py-2 px-6 rounded-lg shadow-md transition-all duration-200"
             >
               Create Project
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {projects.map((project) => (
               <div
                 key={project._id}
                 onClick={() => navigate(`/project/${project._id}`)}
-                className="group cursor-pointer bg-white dark:bg-gray-800 rounded-xl p-6 hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary transform hover:-translate-y-1"
+                className="group cursor-pointer bg-white dark:bg-gray-800 rounded-xl p-6 hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-black dark:hover:border-white transform hover:-translate-y-1"
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent-light rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center">
                     <svg
-                      className="w-6 h-6 text-white"
+                      className="w-6 h-6 text-black dark:text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -213,7 +213,7 @@ const Home = () => {
 
       {modalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-200 dark:border-gray-700 transform transition-all">
+          <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-200 dark:border-gray-700 transform transition-all">
             <h3 className="text-2xl font-bold font-sans mb-2 text-gray-900 dark:text-white">
               Create New Project
             </h3>
@@ -225,7 +225,7 @@ const Home = () => {
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
               placeholder="Enter project name"
-              className="w-full p-3 mb-6 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400 transition-all"
+              className="w-full p-3 mb-6 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400 transition-all"
               autoFocus
             />
             <div className="flex justify-end gap-3">
@@ -238,7 +238,7 @@ const Home = () => {
               <button
                 onClick={createProject}
                 disabled={!projectName.trim()}
-                className="px-5 py-2.5 bg-primary hover:bg-accent-light text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 bg-black dark:bg-transparent text-white dark:text-white border border-black dark:border-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Create Project
               </button>

@@ -1,60 +1,42 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./Landing.css";
+import { Globe } from "lucide-react";
 
 const Landing = () => {
   return (
-    <div className="landing-container">
-      <nav className="navbar">
-        <div className="logo">
-          <svg
-            width="40"
-            height="40"
-            viewBox="0 0 40 40"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <circle cx="20" cy="20" r="20" fill="#00B382" />
-            <path
-              d="M26.6,13.4C24.1,10.9,20.9,10,17.5,10c-4.4,0-8.1,2.5-10,6.1l2.9,1.2c1.5-2.5,4.1-4.2,7.1-4.2c2.4,0,4.6,1.1,6.1,2.9L26.6,13.4z"
-              fill="white"
-            />
-            <path
-              d="M13.4,26.6c2.5,2.5,5.7,3.4,9.1,3.4c4.4,0,8.1-2.5,10-6.1l-2.9-1.2c-1.5,2.5-4.1,4.2-7.1,4.2c-2.4,0-4.6-1.1-6.1-2.9L13.4,26.6z"
-              fill="white"
-            />
-          </svg>
-          <span
-            style={{
-              marginLeft: "10px",
-              fontSize: "1.5rem",
-              fontWeight: "bold",
-            }}
-          >
-            CollabSphere
-          </span>
+    <div className="relative min-h-screen font-sans text-white overflow-hidden">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: "url('/Landing.webp')" }}
+      ></div>
+      <nav className="relative z-10 flex justify-between items-center p-6 lg:px-16">
+        <div className="flex items-center">
+          <Globe />
+          <span className="ml-2 text-xl font-bold">CollabSphere</span>
         </div>
-        <div className="nav-links">
-          <Link to="/login" className="nav-link">
+        <div className="flex items-center gap-8">
+          <Link to="/login" className="text-white no-underline">
             Log in
           </Link>
-          <Link to="/register" className="nav-link get-started-btn">
+          <Link
+            to="/register"
+            className="text-white py-2 px-6 rounded-md font-semibold no-underline shadow-md transition-all duration-200 hover:translate-y-[-2px] hover:shadow-lg"
+          >
             Get started
           </Link>
         </div>
       </nav>
-      <main className="hero-section  mb-56">
-        <h1 className="hero-title">CollabSphere</h1>
-        <h2 className="hero-subtitle">
+      -16
+      <main className="relative z-10 flex flex-col items-center justify-start text-center px-8 py-2 lg:py-18">
+        <h1 className="text-5xl lg:text-7xl font-bold mb-4">CollabSphere</h1>
+        <h2 className="text-2xl lg:text-4xl font-medium mb-8 max-w-2xl">
           Your Collaborative Development Platform, Supercharged with AI
         </h2>
-        <p className="hero-description">
+        <p className="text-lg max-w-2xl leading-relaxed">
           CollabSphere helps developers connect, create projects, and work
-          together seamlessly, With an integrated AI assistant in a group chat
-          environment, you can streamline your workflow and bring your ideas to
-          life faster than ever. It's like having a mini IDE in the cloud.
+          together seamlessly.
         </p>
-        <div className="support-note">
+        <div className="flex items-center gap-2 text-sm text-gray-400 mt-8">
           <span>Only supported on </span>
           <svg
             xmlns="http://www.w3.org/2000/svg"

@@ -42,7 +42,11 @@ const Chat = ({
                     To ask the AI a question about your project, start your
                     message with{" "}
                     <code className="bg-gray-700 p-1 rounded">@ai</code> or{" "}
-                    <code className="bg-gray-700 p-1 rounded">@AI</code>.
+                    <code className="bg-gray-700 pl-1 rounded">@AI</code>.
+                  </li>
+                  <li className="text-gray-200">
+                    In mobile screens you can't use the code editor. only user
+                    can chat with the AI.
                   </li>
                   <li>
                     For example:{" "}
@@ -166,15 +170,19 @@ const Chat = ({
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type your message or ask AI..."
-            className={`w-full rounded-lg py-3 px-4 pr-12 focus:outline-none focus:ring-2 focus:ring-primary ${
+            className={`w-full rounded-lg py-3 px-4 pr-12 focus:outline-none focus:ring-2 ${
               theme === "light"
-                ? "bg-gray-200 text-black"
-                : "bg-gray-700 text-white"
+                ? "bg-gray-200 text-black focus:ring-black"
+                : "bg-gray-700 text-white focus:ring-white"
             }`}
           />
           <button
             type="submit"
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-primary hover:bg-primary-dark transition-colors focus:outline-none"
+            className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-colors focus:outline-none ${
+              theme === "light"
+                ? "bg-black hover:bg-gray-800"
+                : "bg-transparent  hover:bg-gray-700"
+            }`}
             disabled={isLoading}
           >
             <svg

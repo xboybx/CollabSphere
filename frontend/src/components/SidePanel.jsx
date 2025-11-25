@@ -122,7 +122,11 @@ const SidePanel = ({
               setIframeUrl(url);
             });
           }}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 transition-colors focus:outline-none"
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors focus:outline-none ${
+            theme === "light"
+              ? "bg-black hover:bg-gray-800 text-white"
+              : "bg-transparent border border-white hover:bg-gray-700 text-white"
+          }`}
         >
           <FaPlay size={14} />
           <span className="text-sm font-semibold">Run</span>

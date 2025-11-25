@@ -17,15 +17,15 @@ const Header = ({
   const navigate = useNavigate();
 
   return (
-    <div className="h-16 flex items-center px-6 justify-between rounded-t-md border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm">
+    <div className="h-16 flex items-center px-1 justify-between rounded-t-md border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm">
       <div className="flex items-center gap-4">
-        <button
+        {/* <button
           onClick={() => navigate("/home")}
           className="p-2 rounded-lg hover:bg-gray-700 transition-colors focus:outline-none"
           title="Back to Home"
         >
           <Home size={20} />
-        </button>
+        </button> */}
         <button
           onClick={() => setIsCollaboratorsDrawerOpen(true)}
           className="p-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2 focus:outline-none"
@@ -37,7 +37,7 @@ const Header = ({
         </button>
       </div>
 
-      <h2 className="text-2xl font-bold font-sans bg-gradient-to-r from-primary to-accent-light text-transparent bg-clip-text">
+      <h2 className="text-2xl font-bold  text-white">
         {project?.name || "Project"}
       </h2>
       <div className="flex items-center gap-2">
@@ -46,10 +46,10 @@ const Header = ({
           className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors focus:outline-none"
           title={isCodeEditorVisible ? "Hide Code Editor" : "Show Code Editor"}
         >
-          <Code2 size={18} />
-          <span className="text-sm">
+          <Code2 size={13} />
+          {/* <span className="text-sm">
             {isCodeEditorVisible ? "Hide" : "Show"}
-          </span>
+          </span> */}
         </button>
         <button
           onClick={() => {
@@ -59,7 +59,7 @@ const Header = ({
           className="p-2 rounded-lg hover:bg-gray-700 transition-colors focus:outline-none"
           title="Add Collaborator"
         >
-          <FaPlus size={18} />
+          <FaPlus />
         </button>
         <button
           onClick={toggleTheme}

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useContext } from "react";
+import { useState, useCallback, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "../../config/axios.config.js";
 import {
@@ -8,16 +8,31 @@ import {
   removeMessageListener,
 } from "../Context/SocketContext.jsx";
 import { userContext } from "../Context/UsercontextProvider.jsx";
-import { RingLoader } from "react-spinners";
 import { getWebContainer } from "../../config/Webcontainer.js";
 import Header from "../components/Header.jsx";
 import Chat from "../components/Chat.jsx";
-import FileTree from "../components/FileTree.jsx";
-import CodeEditor from "../components/Editor.jsx";
+// import FileTree from "../components/FileTree.jsx";
+// import CodeEditor from "../components/Editor.jsx";
 import AddCollaboratorModal from "../components/AddCollaboratorModal.jsx";
 import CollaboratorsPanel from "../components/CollaboratorsPanel.jsx";
 import SidePanel from "../components/SidePanel";
 import { AnimatePresence } from "framer-motion";
+
+const useMediaQuery = (query) => {
+  const [matches, setMatches] = useState(window.matchMedia(query).matches);
+
+  useEffect(() => {
+    const mediaQueryList = window.matchMedia(query);
+    const documentChangeHandler = (e) => setMatches(e.matches);
+
+    mediaQueryList.addEventListener("change", documentChangeHandler);
+    return () => {
+      mediaQueryList.removeEventListener("change", documentChangeHandler);
+    };
+  }, [query]);
+
+  return matches;
+};
 
 const NewCreatedProject = () => {
   const { projectId } = useParams();
@@ -43,6 +58,7 @@ const NewCreatedProject = () => {
   const { user, theme, setTheme } = useContext(userContext);
   const [isCollaboratorsDrawerOpen, setIsCollaboratorsDrawerOpen] =
     useState(false);
+  const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
   useEffect(() => {
     if (projectId) {
@@ -199,12 +215,12 @@ const NewCreatedProject = () => {
 
   const resize = useCallback(
     (e) => {
-      if (isResizing) {
+      if (isResizing && isLargeScreen) {
         const width = (e.clientX / window.innerWidth) * 100;
         setLeftPaneWidth(Math.min(Math.max(width, 20), 80));
       }
     },
-    [isResizing]
+    [isResizing, isLargeScreen]
   );
 
   //Fetch Project Details
@@ -258,8 +274,9 @@ const NewCreatedProject = () => {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-900">
         <div className="text-center">
-          <RingLoader color="#3ECF8E" size={60} />
-          <p className="mt-4 text-gray-400">Loading project...</p>
+          <p className="mt-4 text-white bg-gradient-to-r from-black via-white to-black bg-[200%] bg-[length:200%_200%] bg-clip-text text-transparent [text-fill-color:transparent] animate-gradient-loader [-webkit-text-fill-color:transparent] [-webkit-background-clip:text]">
+            Loading project...
+          </p>
         </div>
       </div>
     );
@@ -270,11 +287,11 @@ const NewCreatedProject = () => {
       className={`flex h-screen relative font-sans ${
         isResizing ? "select-none" : ""
       } bg-gray-900 text-white`}
-      style={{ cursor: isResizing ? "col-resize" : "auto" }}
+      style={{ cursor: isResizing && isLargeScreen ? "col-resize" : "auto" }}
     >
       <div
         className="flex flex-col shadow-lg rounded-lg"
-        style={{ width: `${leftPaneWidth}%` }}
+        style={{ width: isLargeScreen ? `${leftPaneWidth}%` : "100%" }}
       >
         <Header
           user={user}
@@ -311,11 +328,13 @@ const NewCreatedProject = () => {
           theme={theme}
         />
       </div>
-      <div
-        onMouseDown={startResizing}
-        className="w-2 cursor-col-resize bg-gray-700 hover:bg-primary transition-colors"
-      />
-      {isCodeEditorVisible && (
+      {isLargeScreen && (
+        <div
+          onMouseDown={startResizing}
+          className="w-2 cursor-col-resize bg-gray-700 hover:bg-gray-400 transition-colors"
+        />
+      )}
+      {isLargeScreen && isCodeEditorVisible && (
         <div
           className="flex flex-col"
           style={{ width: `${100 - leftPaneWidth}%` }}
