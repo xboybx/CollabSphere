@@ -130,7 +130,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 px-4 bg-primary hover:bg-accent-light text-white font-medium rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3 px-4 bg-[#4d9fe8] hover:bg-[#0c437a] text-white font-medium rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? "Signing in..." : "Sign in"}
               </button>
@@ -142,7 +142,7 @@ const Login = () => {
               Don't have an account?{" "}
               <Link
                 to="/register"
-                className="font-medium text-primary hover:text-accent-light transition-colors"
+                className="font-medium text-[#4d9fe8] hover:text-[#0c437a] transition-colors"
               >
                 Sign up
               </Link>

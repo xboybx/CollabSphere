@@ -17,7 +17,7 @@ const Chat = ({
     <div
       className={`flex-1 flex flex-col ${
         theme === "light" ? "bg-white" : "bg-gray-900"
-      }`}
+      } overflow-y-hidden`}
     >
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
         {geminiError && (
@@ -26,7 +26,7 @@ const Chat = ({
           </div>
         )}
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center text-gray-400 text-sm">
+          <div className="flex flex-col items-center justify-center h-full text-center text-gray-400 text-sm ">
             <div className="max-w-lg">
               <h2 className="text-lg font-bold text-gray-300 mb-2">
                 Welcome to the Collaborative Coding Environment!
@@ -93,21 +93,21 @@ const Chat = ({
             key={index}
             className={`flex flex-col ${
               msg.sender === user._id ? "items-end" : "items-start"
-            }`}
+            } `}
           >
             <div
               className={` hide-scrollbar relative max-w-[70%] px-5 py-3 break-words whitespace-pre-wrap rounded-lg ${
                 msg.sender === user._id
-                  ? "bg-blue-600 text-white rounded-tr-none"
+                  ? " text-white rounded-tr-none"
                   : msg.sender === "ai" || msg.sender?._id === "ai"
-                  ? "bg-gray-700 rounded-tl-none overflow-scroll"
-                  : "bg-gray-700 rounded-tl-none"
+                  ? " rounded-tl-none overflow-scroll"
+                  : " rounded-tl-none"
               }`}
             >
               <div className="flex flex-col">
-                <span className="text-xs text-gray-400 mb-1">
+                <span className="text-xs text-gray-300 mb-2 bg-white/10 backdrop-blur-sm px-2 py-1 rounded-lg">
                   {msg.sender === user._id
-                    ? user.email || "You"
+                    ? user.email.split("@")[0] || "You"
                     : msg.sender?.email || "AI"}
                 </span>
                 <Markdown
@@ -156,14 +156,7 @@ const Chat = ({
           </div>
         )}
       </div>
-      <form
-        onSubmit={handleSendMessage}
-        className={`p-4 border-t ${
-          theme === "light"
-            ? "bg-gray-100 border-gray-200"
-            : "bg-gray-800/50 border-gray-700"
-        }`}
-      >
+      <form onSubmit={handleSendMessage} className={`p-4  `}>
         <div className="relative">
           <input
             type="text"
@@ -178,18 +171,14 @@ const Chat = ({
           />
           <button
             type="submit"
-            className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-colors focus:outline-none ${
-              theme === "light"
-                ? "bg-black hover:bg-gray-800"
-                : "bg-transparent  hover:bg-gray-700"
-            }`}
+            className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-colors focus:outline-none `}
             disabled={isLoading}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
-              className="w-6 h-6 text-white"
+              className="w-6 h-6 text-black dark:text-white"
             >
               <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
             </svg>

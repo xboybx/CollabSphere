@@ -27,16 +27,14 @@ const Landing = () => {
         </div>
       </nav>
       -16
-      <main className="relative z-10 flex flex-col items-center justify-start text-center px-8 py-2 lg:py-18">
+      <main className="relative z-10 flex flex-col items-center justify-start text-center px-8 py-20 lg:py-44">
         <h1 className="text-5xl lg:text-7xl font-bold mb-4">CollabSphere</h1>
-        <h2 className="text-2xl lg:text-4xl font-medium mb-8 max-w-2xl">
-          Your Collaborative Development Platform, Supercharged with AI
-        </h2>
-        <p className="text-lg max-w-2xl leading-relaxed">
+
+        <p className="text-lg max-w-2xl leading-relaxed text-gray-500">
           CollabSphere helps developers connect, create projects, and work
           together seamlessly.
         </p>
-        <div className="flex items-center gap-2 text-sm text-gray-400 mt-8">
+        <div className="flex items-center gap-2 text-sm text-gray-00 mt-8">
           <span>Only supported on </span>
           <svg
             xmlns="http://www.w3.org/2000/svg"

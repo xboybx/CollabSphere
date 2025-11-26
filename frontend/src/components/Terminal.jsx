@@ -15,7 +15,7 @@ const Term = ({ terminal }) => {
     }
   }, [terminal]);
 
-  return <div ref={terminalRef} style={{ height: "100%", width: "100%" }} />;
+  return <div ref={terminalRef} />;
 };
 
 export default Term;
