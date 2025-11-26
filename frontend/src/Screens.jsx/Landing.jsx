@@ -1,14 +1,20 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Globe } from "lucide-react";
+import { motion } from "framer-motion";
 
 const Landing = () => {
   return (
     <div className="relative min-h-screen font-sans text-white overflow-hidden">
-      <div
+      <motion.div
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/Landing.webp')" }}
-      ></div>
+        style={{
+          backgroundImage: "url('./Landing.webp')",
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.5 }}
+      ></motion.div>
       <nav className="relative z-10 flex justify-between items-center p-6 lg:px-16">
         <div className="flex items-center">
           <Globe />
